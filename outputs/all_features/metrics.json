@@ -1,0 +1,47 @@
+{
+    "display_name": "Random Forest - Tum Sayisal Ozellikler",
+    "validation_metrics": {
+        "Accuracy": 1.0,
+        "Phishing Precision": 1.0,
+        "Phishing Recall / Sensitivity": 1.0,
+        "Phishing Specificity": 1.0,
+        "Phishing F1-score": 1.0,
+        "Phishing ROC-AUC": 1.0,
+        "TP - Phishing Dogru": 15142,
+        "FN - Phishing Kacirilan": 0,
+        "FP - Legitimate Yanlis Alarm": 0,
+        "TN - Legitimate Dogru": 20227,
+        "Confusion Matrix": [
+            [
+                15142,
+                0
+            ],
+            [
+                0,
+                20227
+            ]
+        ]
+    },
+    "test_metrics": {
+        "Accuracy": 0.9999717274526435,
+        "Phishing Precision": 1.0,
+        "Phishing Recall / Sensitivity": 0.9999339585259543,
+        "Phishing Specificity": 1.0,
+        "Phishing F1-score": 0.9999669781725721,
+        "Phishing ROC-AUC": 1.0,
+        "TP - Phishing Dogru": 15141,
+        "FN - Phishing Kacirilan": 1,
+        "FP - Legitimate Yanlis Alarm": 0,
+        "TN - Legitimate Dogru": 20228,
+        "Confusion Matrix": [
+            [
+                15141,
+                1
+            ],
+            [
+                0,
+                20228
+            ]
+        ]
+    }
+}

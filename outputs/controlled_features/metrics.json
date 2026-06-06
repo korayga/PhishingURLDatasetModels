@@ -1,0 +1,47 @@
+{
+    "display_name": "Random Forest - Kontrollu Ozellik Seti",
+    "validation_metrics": {
+        "Accuracy": 0.9998586332664198,
+        "Phishing Precision": 0.9998679083283799,
+        "Phishing Recall / Sensitivity": 0.9998018755778629,
+        "Phishing Specificity": 0.9999011222623226,
+        "Phishing F1-score": 0.9998348908628604,
+        "Phishing ROC-AUC": 0.9999996457457886,
+        "TP - Phishing Dogru": 15139,
+        "FN - Phishing Kacirilan": 3,
+        "FP - Legitimate Yanlis Alarm": 2,
+        "TN - Legitimate Dogru": 20225,
+        "Confusion Matrix": [
+            [
+                15139,
+                3
+            ],
+            [
+                2,
+                20225
+            ]
+        ]
+    },
+    "test_metrics": {
+        "Accuracy": 0.9997455470737914,
+        "Phishing Precision": 0.9997358166567598,
+        "Phishing Recall / Sensitivity": 0.9996697926297715,
+        "Phishing Specificity": 0.9998022543009689,
+        "Phishing F1-score": 0.9997028035531487,
+        "Phishing ROC-AUC": 0.9999997290170879,
+        "TP - Phishing Dogru": 15137,
+        "FN - Phishing Kacirilan": 5,
+        "FP - Legitimate Yanlis Alarm": 4,
+        "TN - Legitimate Dogru": 20224,
+        "Confusion Matrix": [
+            [
+                15137,
+                5
+            ],
+            [
+                4,
+                20224
+            ]
+        ]
+    }
+}

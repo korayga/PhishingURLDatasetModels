@@ -1,0 +1,3 @@
+﻿Model,TP - Phishing Dogru,FN - Phishing Kacirilan,FP - Legitimate Yanlis Alarm,TN - Legitimate Dogru
+Random Forest - Tum Sayisal Ozellikler,15141,1,0,20228
+Random Forest - Kontrollu Ozellik Seti,15137,5,4,20224

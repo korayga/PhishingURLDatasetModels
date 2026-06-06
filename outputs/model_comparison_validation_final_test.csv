@@ -1,0 +1,5 @@
+﻿Model,Split,Accuracy,Phishing Precision,Phishing Recall / Sensitivity,Phishing Specificity,Phishing F1-score,Phishing ROC-AUC
+Random Forest - Tum Sayisal Ozellikler,Validation,1.0,1.0,1.0,1.0,1.0,1.0
+Random Forest - Tum Sayisal Ozellikler,Final Test,0.9999717274526435,1.0,0.9999339585259543,1.0,0.9999669781725721,1.0
+Random Forest - Kontrollu Ozellik Seti,Validation,0.9998586332664198,0.9998679083283799,0.9998018755778629,0.9999011222623226,0.9998348908628604,0.9999996457457886
+Random Forest - Kontrollu Ozellik Seti,Final Test,0.9997455470737914,0.9997358166567598,0.9996697926297715,0.9998022543009689,0.9997028035531487,0.9999997290170879
