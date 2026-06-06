@@ -8,193 +8,182 @@ Bu projede, kullanıcıları dolandırmayı hedefleyen **sahte (Phishing) web si
 **Ana algoritma:** Random Forest  
 **Veri seti:** [PhiUSIIL Phishing URL Dataset](https://archive.ics.uci.edu/dataset/967/phiusiil+phishing+url+dataset) (UCI Machine Learning Repository)
 
----
+**Sunum Videosu (YouTube):** [Random Forest ile Phishing Web Sitelerinin Tespiti](https://www.youtube.com/watch?v=yq_4fRWAo_8)
 
-## 📊 Veri Seti Bilgileri
 
-| Özellik | Değer |
-|---|---|
-| **Dosya Adı** | `PhiUSIIL_Phishing_URL_Dataset.csv` |
-| **Toplam Kayıt** | ~235.000 URL |
-| **Özellik Sayısı** | 54+ sütun |
-| **Hedef Değişken** | `label` (0 = Phishing, 1 = Legitimate) |
-| **Kaynak** | UCI ML Repository / Kaggle |
+
 
 ---
 
-## 📁 Proje Yapısı
+## İçindekiler
 
-```
-veri_madenciliği/
-│
-├── 📓 sunum_notebook.ipynb          # Ana sunum notebook'u (adım adım çalıştırılır)
-│
-├── 🐍 01_random_forest_model.py     # Random Forest — 3 farklı özellik seti ile eğitim
-├── 🐍 02_model_comparison.py        # 9 farklı ML modeli karşılaştırması
-├── 🐍 03_robustness_test.py         # Gürültülü ve rastgele veri ile dayanıklılık testi
-│
-├── 📂 outputs/                      # Random Forest model çıktıları
-│   ├── all_features/                #   ├── Tüm özellikler ile sonuçlar
-│   └──  controlled_features/         #  ├── Kontrollü özellik seti sonuçları
-│ 
-│
-├── 📂 outputs_compare/              # Model karşılaştırma çıktıları (grafik + CSV)
-│
-├── 📄 PhiUSIIL_Phishing_URL_Dataset.csv 
-├── 📄 requirements.txt            
-├── 📄 README.md                  
-└── 📄 BLM463_Proje_KorayGarip_22360859088.docx  
-```
+1. [Projenin Amacı ve Önemi](#projenin-amacı-ve-önemi)
+2. [Veri Seti Bilgileri](#veri-seti-bilgileri)
+3. [Yöntem ve İş Akışı](#yöntem-ve-iş-akışı)
+4. [Deneysel Sonuçlar](#deneysel-sonuçlar)
+5. [Dayanıklılık (Robustness) Testleri](#dayanıklılık-robustness-testleri)
+6. [Proje Yapısı](#proje-yapısı)
+7. [Kurulum ve Çalıştırma](#kurulum-ve-çalıştırma)
+8. [Kullanılan Teknolojiler](#kullanılan-teknolojiler)
+9. [Referanslar](#referanslar)
 
 ---
 
-## 🔄 Proje Akış Diyagramı
+## Projenin Amacı ve Önemi
 
-```
+Siber savunma sistemlerinde oltalama sitelerinin tespiti yapılırken **False Negative** (phishing sitesinin güvenli/meşru olarak sınıflandırılması) hatasının maliyeti çok yüksektir; çünkü bu durum doğrudan kullanıcı verilerinin sızdırılmasına veya finansal kayıplara yol açar. 
+
+Bu çalışmada, yalnızca yüksek doğruluklu bir model eğitilmemiş; aynı zamanda siber saldırganların tespit sistemlerini atlatmak için web site özniteliklerinde yapabileceği manipülasyonlar (adversarial noise) simüle edilerek modelin savunma hattındaki dayanıklılığı test edilmiştir.
+
+---
+
+## Veri Seti Bilgileri
+
+| Özellik | Değer / Açıklama |
+| :--- | :--- |
+| **Veri Seti Adı** | PhiUSIIL Phishing URL Dataset |
+| **Kaynak** | UCI Machine Learning Repository |
+| **Toplam Kayıt Sayısı** | ~235.000 URL |
+| **Öznitelik Sayısı** | 54+ Yapısal, URL tabanlı ve istatistiksel nitelik |
+| **Hedef Değişken (label)** | 0 = Phishing (Oltalama), 1 = Legitimate (Güvenli) |
+| **Eksik Değer Durumu** | Yok (Ön işleme aşamasında temizlenmiştir) |
+
+---
+
+## Yöntem ve iş Akışı
+
+Proje, verinin ham halinden alınıp savunma sistemine entegre edilebilir bir kararlılığa ulaştırılmasına kadar 7 temel aşamadan oluşmaktadır:
+
+```	ext
 ┌─────────────────────────┐
-│   1. VERİ YÜKLEME       │
-│   CSV → DataFrame       │
+│   1. VERİ YÜKLEME       │ -> CSV dosyasının DataFrame olarak yüklenmesi
 └──────────┬──────────────┘
-           │
            ▼
 ┌─────────────────────────┐
-│   2. VERİ ÖN İŞLEME      │
-│   • Metin sütunları çıkar│
-│   • özellik seti oluştur │
-│   • Train/Val/Test böl   │
-└──────────┬──────────────┘
-           │
+│   2. VERİ ÖN İŞLEME      │ -> Metin sütunlarının çıkarılması, ölçekleme
+└──────────┬──────────────┘ -> Train / Validation / Test (%70, %15, %15) ayrımı
            ▼
 ┌─────────────────────────┐
-│   3. MODEL EĞİTİMİ      │
-│   Random Forest         │
-│   • Tüm özellikler      │
-│   • Kontrollü set       │         
-└──────────┬──────────────┘
-           │
+│   3. RF MODEL EĞİTİMİ   │ -> Tüm özellikler ve kontrollü özellik setleri
+└──────────┬──────────────┘ -> ile Random Forest modellerinin kurulması
            ▼
 ┌─────────────────────────┐
-│   4. DEĞERLENDİRME      │
-│   • Confusion Matrix    │
-│   • ROC-AUC             │
-│   • Feature Importance  │
-└──────────┬──────────────┘
-           │
+│   4. DEĞERLENDİRME      │ -> Confusion Matrix, ROC-AUC hesaplamaları
+└──────────┬──────────────┘ -> Feature Importance (Özellik Önem) analizleri
            ▼
 ┌─────────────────────────┐
-│   5. MODEL KARŞILAŞTIRMA │
-│   9 farklı ML algoritması│
-│   DT, RF, KNN, NB,      │
-│   SVM, MLP, AdaBoost    │
-└──────────┬──────────────┘
-           │
+│   5. MODEL KIYASLAMA    │ -> DT, RF, AdaBoost, KNN, Gaussian NB, 
+└──────────┬──────────────┘ -> Bernoulli NB, MLP, Deep MLP, SVM entegrasyonu
            ▼
 ┌─────────────────────────┐
-│   6. DAYANIKLILIK TESTİ │
-│   • %10 / %30 gürültü   │
-│   • Rastgele veri       │
-└──────────┬──────────────┘
-           │
+│   6. DAYANIKLILIK TESTİ │ -> %10 ve %30 Gauss gürültüsü eklenmesi,
+└──────────┬──────────────┘ -> Rastgele veriyle ezber (overfitting) kontrolü
            ▼
 ┌─────────────────────────┐
-│   7. SONUÇ & RAPORLAMA  │
-│   Grafik, tablo, rapor  │
+│   7. SONUÇ & RAPORLAMA  │ -> Grafikler, çıktılar ve akademik raporlama
 └─────────────────────────┘
 ```
 
----
+## Deneysel Sonuçlar
 
-## 🚀 Kurulum ve Çalıştırma
+### 1. Random Forest Öznitelik Seti Karşılaştırması
 
-### 1. Gereksinimler
+| Özellik Seti | Accuracy | F1-Score | ROC-AUC |
+| :--- | :--- | :--- | :--- |
+| **Tüm Sayısal Özellikler** | ~%99.9 | ~%99.9 | ~%99.9 |
+| **Kontrollü Özellik Seti** | ~%99.8 | ~%99.8 | ~%99.9 |
+
+### 2. Çoklu Algoritma Kıyaslaması (Kapsamlı Analiz)
+Veri seti 9 farklı makine öğrenmesi ve yapay sinir ağı mimarisiyle eğitilmiş olup, elde edilen kalitatif performans özeti aşağıdadır:
+
+| Algoritma Grubu | Model | Accuracy | F1-Score | ROC-AUC |
+| :--- | :--- | :--- | :--- | :--- |
+| **Ensemble Learning** | **Random Forest** | **En Yüksek** | **En Yüksek** | **En Yüksek** |
+| **Ensemble Learning** | AdaBoost | Yüksek | Yüksek | Yüksek |
+| **Ağaç Tabanlı Sınıflandırıcı**| Decision Tree | Yüksek | Yüksek | Yüksek |
+| **Yapay Sinir Ağları** | Deep MLP & MLP | Yüksek | Yüksek | Yüksek |
+| **Mesafe Tabanlı Modeller** | K-Nearest Neighbors (KNN)| Yüksek | Yüksek | Yüksek |
+| **Olasılıksal Modeller** | Gaussian & Bernoulli NB | Orta | Orta | Orta |
+
+*Not: Kesin ondalıklı değerler, proje çalıştırıldığında üretime bağlı olarak outputs_compare/ klasöründe metrik bazlı olarak tutulmaktadır.*
+
+## Dayanıklılık (Robustness) Testleri
+Siber güvenlik modellerinin kararlılığını ölçmek adına, eğitilen en başarılı modele 3 farklı stres ve manipülasyon senaryosu uygulanmıştır:
+
+| Test Senaryosu | Uygulanan Değişim | Beklenen / Elde Edilen Model Refleksi |
+| :--- | :--- | :--- |
+| **Orijinal Test Verisi** | Değişim yok | ~%99.8 Doğruluk oranı ile kararlı koruma. |
+| **%10 Gauss Gürültüsü** | Özniteliklere hafif gürültü eklenmesi | Hafif düşüş; model gürültüyü absorbe edebiliyor (Sağlam). |
+| **%30 Gauss Gürültüsü** | Yüksek oranda veri manipülasyonu | Belirgin düşüş; modelin yapısal sınırları doğrulanıyor. |
+| **Tamamen Rastgele Veri**| Anlamsız/Rastgele matris girdisi | ~%50 Doğruluk (Modelin ezber yapmadığı, rastgele veriye yazı-tura cevabı verdiği kanıtlanmıştır). |
+
+## Proje Yapısı
+
+```plaintext
+PhishingURLDatasetModels/
+│
+├── 📓 sunum_notebook.ipynb            # Adım adım yürütülen ana Jupyter sunum dosyası
+│
+├── 🐍 01_random_forest_model.py       # RF modeli eğitimi (3 farklı özellik seti ile)
+├── 🐍 02_model_comparison.py          # 9 farklı ML modelinin karşılaştırılması
+├── 🐍 03_robustness_test.py           # Model dayanıklılık ve gürültü testleri
+│
+├── 📂 outputs/                        # Random Forest analiz çıktıları (.json & grafikler)
+│   ├── all_features/                  # Tüm özelliklerle üretilen sonuçlar
+│   └── controlled_features/           # Seçilmiş özelliklerle üretilen sonuçlar
+│ 
+├── 📂 outputs_compare/                # 9 Modelin kıyaslama grafikleri ve CSV tabloları
+│
+├── 📄 PhiUSIIL_Phishing_URL_Dataset.csv # Orijinal veri seti dosyası
+├── 📄 requirements.txt                # Bağımlılık listesi
+├── 📄 README.md                       # Proje dokümantasyonu
+└── 📄 BLM463_Proje_KorayGarip_22360859088.docx # Detaylı akademik rapor
+```
+
+## Kurulum ve Çalıştırma
+
+### 1. Bağımlılıkları Yükleyin
+Projenin çalışması için gerekli kütüphaneleri yüklemek adına terminalde aşağıdaki komutu çalıştırın:
 
 ```bash
 pip install -r requirements.txt
 ```
 
-### 2. Sunum Notebook'u (Önerilen)
-
-Tüm projeyi tek bir notebook üzerinden adım adım çalıştırıp sunabilirsiniz:
+### 2. Sunum Notebook'u (Önerilen Çalıştırma Yöntemi)
+Projeyi görsel grafiklerle, adım adım izlemek ve sunumunu gerçekleştirmek için Jupyter ortamını başlatabilirsiniz:
 
 ```bash
 jupyter notebook sunum_notebook.ipynb
 ```
 
-### 3. Python Scriptleri (Ayrı Ayrı Çalıştırma)
+### 3. Modülleri Script Üzerinden Çalıştırma
+Her bir analiz adımını bağımsız Python scriptleri olarak koşturmak isterseniz:
 
 ```bash
-# Ana Random Forest modeli 
+# 1. Ana Random Forest modelini eğitin ve çıktıları kaydedin
 python 01_random_forest_model.py --csv PhiUSIIL_Phishing_URL_Dataset.csv --output outputs
 
-# Model karşılaştırması
+# 2. 9 farklı modeli birbiriyle kıyaslayın
 python 02_model_comparison.py --csv PhiUSIIL_Phishing_URL_Dataset.csv --output outputs_compare
 
-# Dayanıklılık testi (gürültülü + rastgele veri)
+# 3. Eğitilen modelin gürültü ve dayanıklılık testlerini simüle edin
 python 03_robustness_test.py
-
 ```
 
----
+## Kullanılan Teknolojiler
 
-## 📈 Sonuçlar Özeti
+- **Programlama Dili:** Python 3.10+
+- **Veri İşleme & Analiz:** pandas, 
+umpy
+- **Makine Öğrenmesi & YSA:** scikit-learn (Ensemble, SVM, Tree, Neighbors, Naive Bayes, Neural Network modülleri)
+- **Görselleştirme:** matplotlib, seaborn
+- **Geliştirme Ortamları:** Jupyter Notebook, Python CLI
 
-### Random Forest — Özellik Seti Karşılaştırması
+## Referanslar
 
-| Özellik Seti | Accuracy | F1-Score | ROC-AUC |
-|---|---|---|---|
-| Tüm Sayısal Özellikler | ~%99.9 | ~%99.9 | ~%99.9 |
-| Kontrollü Özellik Seti | ~%99.8 | ~%99.8 | ~%99.9 |
+- **Veri Seti:** Abutaha, M. et al. (2024). *PhiUSIIL Phishing URL Dataset*. UCI Machine Learning Repository.
+- **Kütüphane:** Pedregosa et al. (2011). *Scikit-learn: Machine Learning in Python*. JMLR.
+- **Teorik Altyapı:** Breiman, L. (2001). *Random Forests*. Machine Learning, 45(1), 5-32.
 
-
-### Çok Modelli Karşılaştırma
-
-| Model | Accuracy | F1-Score | ROC-AUC |
-|---|---|---|---|
-| **Random Forest** | **En Yüksek** | **En Yüksek** | **En Yüksek** |
-| Decision Tree | Yüksek | Yüksek | Yüksek |
-| Neural Network (MLP) | Yüksek | Yüksek | Yüksek |
-| K-Nearest Neighbors | Yüksek | Yüksek | Yüksek |
-| Naive Bayes | Orta | Orta | Orta |
-
-
-> **Not:** Kesin değerler notebook çalıştırıldığında hesaplanır ve gösterilir.
-
----
-
-## 🧪 Dayanıklılık Test Sonuçları
-
-| Test Senaryosu | Beklenen Sonuç |
-|---|---|
-| Orijinal test verisi | ~%99.8 doğruluk |
-| %10 gürültü eklenmiş | Hafif düşüş (model sağlam) |
-| %30 gürültü eklenmiş | Belirgin düşüş (beklenen) |
-| Tamamen rastgele veri | ~%50 (model ezber yapmıyor) |
-
-
----
-
-## 📚 Dosya Açıklamaları
-
-### `01_random_forest_model.py`
-Ana model scripti. Veri setini yükler, 3 farklı özellik seti hazırlar ve her biri için Random Forest modeli eğitir. Confusion matrix, ROC eğrisi, feature importance grafikleri ve metrik JSON dosyalarını `outputs/` klasörüne kaydeder.
-
-### `02_model_comparison.py`
-9 farklı makine öğrenmesi algoritmasını (Decision Tree, Random Forest, AdaBoost, KNN, Gaussian NB, Bernoulli NB, MLP, Deep MLP, SVM) aynı veri seti üzerinde eğitip karşılaştırır. Sonuçları `outputs_compare/` klasörüne kaydeder.
-
-### `03_robustness_test.py`
-Eğitilmiş modelin farklı gürültü seviyelerine dayanıklılığını test eder. %10 ve %30 Gauss gürültüsü ile tamamen rastgele üretilmiş veri kullanarak modelin ezbere dayalı olmadığını doğrular.
-
-### `sunum_notebook.ipynb`
-Tüm projeyi 7 bölümde, adım adım çalıştırılabilir şekilde sunan Jupyter Notebook. Sunumda hücre hücre ilerleyerek anlatılacak şekilde tasarlanmıştır.
-
----
-
-## 🔗 Referanslar
-
-- **Veri Seti:** Abutaha, M. et al. (2024). PhiUSIIL Phishing URL Dataset. UCI Machine Learning Repository.
-- **Scikit-learn:** Pedregosa et al. (2011). Scikit-learn: Machine Learning in Python. JMLR.
-- **Random Forest:** Breiman, L. (2001). Random Forests. Machine Learning, 45(1), 5-32.
-
----
-
-
+## Geliştirici
+**LinkedIn:** [Koray Garip | LinkedIn](https://www.linkedin.com/in/koray-garip/)
