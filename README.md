@@ -73,7 +73,7 @@ Proje, verinin ham halinden alınıp savunma sistemine entegre edilebilir bir ka
            ▼
 ┌─────────────────────────┐
 │   5. MODEL KIYASLAMA    │ -> DT, RF, AdaBoost, KNN, Gaussian NB, 
-└──────────┬──────────────┘ -> Bernoulli NB, MLP, Deep MLP, SVM entegrasyonu
+└──────────┬──────────────┘ -> Bernoulli NB, MLP, Deep MLP
            ▼
 ┌─────────────────────────┐
 │   6. DAYANIKLILIK TESTİ │ -> %10 ve %30 Gauss gürültüsü eklenmesi,
@@ -163,7 +163,7 @@ Her bir analiz adımını bağımsız Python scriptleri olarak koşturmak isters
 # 1. Ana Random Forest modelini eğitin ve çıktıları kaydedin
 python 01_random_forest_model.py --csv PhiUSIIL_Phishing_URL_Dataset.csv --output outputs
 
-# 2. 9 farklı modeli birbiriyle kıyaslayın
+# 2. 8 farklı modeli birbiriyle kıyaslayın
 python 02_model_comparison.py --csv PhiUSIIL_Phishing_URL_Dataset.csv --output outputs_compare
 
 # 3. Eğitilen modelin gürültü ve dayanıklılık testlerini simüle edin
@@ -175,7 +175,7 @@ python 03_robustness_test.py
 - **Programlama Dili:** Python 3.10+
 - **Veri İşleme & Analiz:** pandas, 
 umpy
-- **Makine Öğrenmesi & YSA:** scikit-learn (Ensemble, SVM, Tree, Neighbors, Naive Bayes, Neural Network modülleri)
+- **Makine Öğrenmesi & YSA:** scikit-learn (Ensemble, Tree, Neighbors, Naive Bayes, Neural Network modülleri)
 - **Görselleştirme:** matplotlib, seaborn
 - **Geliştirme Ortamları:** Jupyter Notebook, Python CLI
 
